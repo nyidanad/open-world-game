@@ -1,0 +1,98 @@
+{
+    "activeFile": "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/TiledMap Editor Example Demo- Ancient Ruins.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/Ancient Ruins-Tileset-wall-8.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/Ancient Ruins-wall-8-rule.tmx": {
+            "scale": 0.63234375,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 720.3360513960959,
+                "y": 445.1692611811218
+            }
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/Terrain - Ancient Ruins.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/TiledMap Editor Example Demo- Ancient Ruins.tmx": {
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 325.5,
+                "y": 337.5
+            }
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/Tileset-Animated Terrains-8 frames--.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/Ancient Ruins-Tileset-wall-8.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/Ancient Ruins-wall-8-rule.tmx": {
+            "scale": 0.63234375,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 720.3360513960959,
+                "y": 639.6837163330862
+            }
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/Terrain - Ancient Ruins.tsx": {
+            "scaleInDock": 1
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/TiledMap Editor Example Demo- Ancient Ruins.tmx": {
+            "scale": 0.75,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 396,
+                "y": 247.33333333333331
+            }
+        },
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/Tileset-Animated Terrains-8 frames--.tsx": {
+            "scaleInDock": 1
+        },
+        "map01.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 325,
+                "y": 494
+            }
+        },
+        "map01.tmx#BaseChip": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#Tileset-Terrain2": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#Walls": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#Water": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#Water-Animated": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#Water1": {
+            "scaleInDock": 1
+        },
+        "map01.tmx#generic_estructure1-1-on grass": {
+            "scaleInDock": 1
+        }
+    },
+    "openFiles": [
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/TiledMap Editor Example Demo- Ancient Ruins.tmx",
+        "map01.tmx"
+    ],
+    "project": "",
+    "recentFiles": [
+        "map01.tmx",
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/TiledMap Editor Example Demo- Ancient Ruins.tmx",
+        "D:/Projects/Love2D/EPIC RPG World Pack/TiledMap Editor/Ancient Ruins-wall-8-rule.tmx",
+        "D:/Projects/Love2D/EPIC RPG World Pack - [FREE Demo]Ancient Ruins/EPIC RPG World Pack - [FREE Demo]Ancient Ruins - Copia/TiledMap Editor/Ancient Ruins-wall-8-rule.tmx"
+    ]
+}
