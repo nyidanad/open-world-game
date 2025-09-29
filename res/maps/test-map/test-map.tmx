@@ -201,7 +201,7 @@
  <tileset firstgid="766" name="wall-8 - 2 tiles tall-transparency" tilewidth="32" tileheight="32" tilecount="70" columns="10">
   <image source="../map01/wall-8 - 2 tiles tall-transparency.png" width="320" height="224"/>
  </tileset>
- <layer id="1" name="terrain0" width="60" height="34">
+ <layer id="1" name="terrain0" width="60" height="34" locked="1">
   <data encoding="csv">
 279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,
 279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,
@@ -239,7 +239,7 @@
 279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279,279
 </data>
  </layer>
- <layer id="5" name="terrain1" width="60" height="34">
+ <layer id="5" name="terrain1" width="60" height="34" locked="1">
   <data encoding="csv">
 500,499,497,463,499,534,535,463,354,499,532,534,500,535,460,499,499,496,534,499,497,460,532,534,496,499,463,532,536,460,461,499,500,498,533,461,496,534,498,463,500,461,460,535,463,461,463,536,533,461,497,499,497,464,463,533,461,462,532,498,
 499,497,499,463,464,460,534,460,500,532,498,498,498,532,460,496,533,534,535,534,533,462,496,498,536,534,498,532,536,532,532,500,497,500,534,535,460,533,424,496,500,499,462,460,498,460,496,461,534,500,461,497,534,533,461,499,536,532,497,498,
@@ -353,34 +353,34 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="8" name="Colliders" locked="1">
-  <object id="1" x="266" y="238" width="76" height="68"/>
-  <object id="4" x="490" y="111" width="16" height="356"/>
-  <object id="5" x="506" y="463" width="32" height="4"/>
-  <object id="6" x="522" y="495" width="208" height="4"/>
-  <object id="7" x="823" y="559.002" width="80" height="4"/>
-  <object id="8" x="998" y="495" width="208" height="4"/>
-  <object id="9" x="1190" y="463" width="48" height="4"/>
-  <object id="10" x="1222" y="110.005" width="16" height="353"/>
-  <object id="11" x="1189" y="110" width="33" height="1"/>
-  <object id="12" x="1189" y="78" width="16" height="32"/>
-  <object id="13" x="538" y="78" width="650.965" height="1"/>
-  <object id="14" x="522" y="78" width="16" height="32"/>
-  <object id="15" x="490" y="110" width="48" height="1"/>
-  <object id="16" x="608" y="205" width="64" height="1"/>
-  <object id="17" x="607.996" y="333" width="64" height="1"/>
-  <object id="18" x="800" y="429" width="128" height="1"/>
-  <object id="19" x="1056" y="333" width="64" height="1"/>
-  <object id="20" x="1056" y="205" width="64" height="1"/>
-  <object id="44" x="714" y="499" width="16" height="64"/>
-  <object id="45" x="903" y="558.996" width="14" height="25"/>
-  <object id="46" x="969" y="559" width="14" height="25"/>
-  <object id="47" x="809" y="558.998" width="14" height="25"/>
-  <object id="48" x="743" y="558.997" width="14" height="25"/>
-  <object id="49" x="730" y="559.004" width="13" height="4"/>
-  <object id="50" x="998" y="499" width="16" height="64"/>
-  <object id="51" x="983" y="559.004" width="15" height="4"/>
-  <object id="52" x="1190" y="467" width="16" height="28"/>
-  <object id="53" x="522" y="467" width="16" height="28"/>
+ <objectgroup id="8" name="Colliders">
+  <object id="1" x="266" y="238" width="76" height="109"/>
+  <object id="4" x="490" y="110" width="16" height="397"/>
+  <object id="5" x="506" y="463" width="16" height="44"/>
+  <object id="6" x="522" y="495" width="192" height="44"/>
+  <object id="7" x="823" y="559.002" width="80" height="43"/>
+  <object id="8" x="1014" y="495" width="176" height="43"/>
+  <object id="9" x="1206" y="463" width="16" height="44"/>
+  <object id="10" x="1222" y="110.005" width="16" height="397"/>
+  <object id="11" x="1205" y="110" width="17" height="17"/>
+  <object id="12" x="1189" y="78" width="16" height="49"/>
+  <object id="13" x="538" y="78" width="651" height="17"/>
+  <object id="14" x="522" y="78" width="16" height="49"/>
+  <object id="15" x="506" y="110" width="16.0038" height="17"/>
+  <object id="16" x="608" y="205" width="64" height="18"/>
+  <object id="17" x="607.996" y="333" width="64" height="18"/>
+  <object id="18" x="800" y="429" width="128" height="18"/>
+  <object id="19" x="1056" y="333" width="64" height="18"/>
+  <object id="20" x="1056" y="205" width="64" height="18"/>
+  <object id="44" x="714" y="495" width="16" height="108"/>
+  <object id="45" x="903" y="558.996" width="14" height="65"/>
+  <object id="46" x="969" y="559" width="14" height="65"/>
+  <object id="47" x="809" y="558.998" width="14" height="65"/>
+  <object id="48" x="743" y="558.997" width="14" height="64"/>
+  <object id="49" x="730" y="559.004" width="13" height="44"/>
+  <object id="50" x="998" y="495" width="16" height="108"/>
+  <object id="51" x="983" y="559.004" width="15" height="44"/>
+  <object id="52" x="1190" y="463" width="16" height="75"/>
+  <object id="53" x="522" y="463" width="16" height="32"/>
  </objectgroup>
 </map>

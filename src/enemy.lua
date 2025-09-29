@@ -1,93 +1,93 @@
-local Enemy = {}
+local enemy = {}
 
-function Enemy.new(type, world, x, y, ox, oy)
-  Enemy.x = x
-  Enemy.y = y
-  Enemy.ox = ox  -- original x
-  Enemy.oy = oy  -- original y
-  Enemy.type = type
-  Enemy.speed = 40
-  Enemy.dead = false
+function enemy.new(type, world, x, y, ox, oy)
+  enemy.x = x
+  enemy.y = y
+  enemy.ox = ox  -- original x
+  enemy.oy = oy  -- original y
+  enemy.type = type
+  enemy.speed = 40
+  enemy.dead = false
 
-  Enemy.idleSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-shielder-1.png')
-  -- Enemy.walkSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-elite-5.png')
-  Enemy.idle = anim8.newGrid(32, 32, Enemy.idleSpriteSheet:getWidth(), Enemy.idleSpriteSheet:getHeight())
-  -- Enemy.walk = anim8.newGrid(32, 32, Enemy.walkSpriteSheet:getWidth(), Enemy.walkSpriteSheet:getHeight())
+  enemy.idleSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-shielder-1.png')
+  -- enemy.walkSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-elite-5.png')
+  enemy.idle = anim8.newGrid(32, 32, enemy.idleSpriteSheet:getWidth(), enemy.idleSpriteSheet:getHeight())
+  -- enemy.walk = anim8.newGrid(32, 32, enemy.walkSpriteSheet:getWidth(), enemy.walkSpriteSheet:getHeight())
 
   -- animations
-  Enemy.animations = {}
-  -- Enemy.animations.idle = anim8.newAnimation(Enemy.idle('1-2', 1), 0.4)
-  -- Enemy.animations.right = anim8.newAnimation(Enemy.walk('1-4', 1), 0.2)
-  -- Enemy.animations.left  = anim8.newAnimation(Enemy.walk('1-4', 2), 0.2)
-  -- Enemy.animations.upRight = anim8.newAnimation(Enemy.walk('1-4', 3), 0.2)
-  -- Enemy.animations.upLeft  = anim8.newAnimation(Enemy.walk('1-4', 4), 0.2)
-  -- Enemy.animations.downRight = anim8.newAnimation(Enemy.walk('1-4', 1), 0.2)
-  -- Enemy.animations.downLeft  = anim8.newAnimation(Enemy.walk('1-4', 2), 0.2)
+  enemy.animations = {}
+  -- enemy.animations.idle = anim8.newAnimation(enemy.idle('1-2', 1), 0.4)
+  -- enemy.animations.right = anim8.newAnimation(enemy.walk('1-4', 1), 0.2)
+  -- enemy.animations.left  = anim8.newAnimation(enemy.walk('1-4', 2), 0.2)
+  -- enemy.animations.upRight = anim8.newAnimation(enemy.walk('1-4', 3), 0.2)
+  -- enemy.animations.upLeft  = anim8.newAnimation(enemy.walk('1-4', 4), 0.2)
+  -- enemy.animations.downRight = anim8.newAnimation(enemy.walk('1-4', 1), 0.2)
+  -- enemy.animations.downLeft  = anim8.newAnimation(enemy.walk('1-4', 2), 0.2)
 
   -- starting position
-  Enemy.anim = Enemy.animations.right
-  Enemy.lastHorizontal = "right"
+  enemy.anim = enemy.animations.right
+  enemy.lastHorizontal = "right"
 
   -- collider
-  Enemy.collider = world:newBSGRectangleCollider(x, y, 40, 56, 6)
-  Enemy.collider:setFixedRotation(true)
+  enemy.collider = world:newBSGRectangleCollider(x, y, 25, 16, 4)
+  enemy.collider:setFixedRotation(true)
 
-  return Enemy
+  return enemy
 end
 
-function Enemy:update(dt)
+function enemy:update(dt)
   -- Basic AI: chase if close, else idle
-  local dx, dy = player.x - Enemy.x, player.y - Enemy.y
+  local dx, dy = player.x - enemy.x, player.y - enemy.y
   local dist = math.sqrt(dx*dx + dy*dy)
   local vx, vy = 0, 0
 
-  if dist < 280 and dist > 50 then
+  if dist < 260 and dist > 45 then
       -- Chase
-      vx = (dx/dist) * Enemy.speed
-      vy = (dy/dist) * Enemy.speed
-      Enemy.state = "chase"
-      Enemy.anim = Enemy.animations.walk
-  elseif dist <= 50 then
+      vx = (dx/dist) * enemy.speed
+      vy = (dy/dist) * enemy.speed
+      enemy.state = "chase"
+      enemy.anim = enemy.animations.walk
+  elseif dist <= 45 then
       -- Attack
-      Enemy.state = "attack"
-      Enemy.anim = Enemy.animations.attack
-      Enemy:attack()
+      enemy.state = "attack"
+      enemy.anim = enemy.animations.attack
+      enemy:attack()
   else
-      Enemy.state = "idle"
-      Enemy.anim = Enemy.animations.idle
+      enemy.state = "idle"
+      enemy.anim = enemy.animations.idle
   end
 
   -- Dismiss logic: too far from spawnpoint
-  local dxo, dyo = Enemy.x - Enemy.ox, Enemy.y - Enemy.oy
+  local dxo, dyo = enemy.x - enemy.ox, enemy.y - enemy.oy
   local distFromOrigin = math.sqrt(dxo*dxo + dyo*dyo)
   if distFromOrigin > 625 then
-      Enemy.collider:setPosition(Enemy.ox, Enemy.oy)
+      enemy.collider:setPosition(enemy.ox, enemy.oy)
       vx, vy = 0, 0
-      Enemy.state = "idle"
+      enemy.state = "idle"
   end
 
-  Enemy.collider:setLinearVelocity(vx, vy)
+  enemy.collider:setLinearVelocity(vx, vy)
 
   if not isMoving then
-    Enemy.anim = Enemy.animations.idle
+    enemy.anim = enemy.animations.idle
   end
 
-  Enemy.x = Enemy.collider:getX()
-  Enemy.y = Enemy.collider:getY()
-  -- Enemy.anim:update(dt)
+  enemy.x = enemy.collider:getX()
+  enemy.y = enemy.collider:getY() - 16
+  -- enemy.anim:update(dt)
 end
 
-function Enemy:attack()
+function enemy:attack()
   -- TODO
 end
 
-function Enemy:draw()
+function enemy:draw()
   local scale = 1.75
   local ox, oy = 16, 16
 
-  if Enemy.dead then return end
-    -- Enemy.anim:draw(Enemy.idleSpriteSheet, Enemy.x, Enemy.y, 0, scale, scale, ox, oy)
-    love.graphics.draw(Enemy.idleSpriteSheet, Enemy.x, Enemy.y, 0, scale, scale, ox, oy)
+  if enemy.dead then return end
+    -- enemy.anim:draw(enemy.idleSpriteSheet, enemy.x, enemy.y, 0, scale, scale, ox, oy)
+    love.graphics.draw(enemy.idleSpriteSheet, enemy.x, enemy.y, 0, scale, scale, ox, oy)
 end
 
-return Enemy
+return enemy

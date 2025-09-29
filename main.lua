@@ -62,9 +62,15 @@ function love.draw()
     gameMap:drawLayer(gameMap.layers['terrain1'])
     gameMap:drawLayer(gameMap.layers['structures'])
     gameMap:drawLayer(gameMap.layers['water'])
-    player:draw()
     enemy:draw()
+    player:draw()
 
     -- world:draw()
   cam:detach()
+end
+
+function love.mousepressed(x, y, button)
+  if button == 1 then
+    player:attack()
+  end
 end
