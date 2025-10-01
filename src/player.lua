@@ -29,7 +29,7 @@ function player.new(world, x, y)
   -- starting position
   player.state = "idle"
   player.anim = player.animations.idle
-  player.lastHorizontal = "right"
+  player.direction = "right"
 
   -- collider
   player.collider = world:newBSGRectangleCollider(x, y, 25, 16, 4)
@@ -110,7 +110,7 @@ function player:update(dt, mapWidth, mapHeight)
         vx = player.speed
         player.state = "walk"
         player.anim = player.animations.walk
-        player.lastHorizontal = "right"
+        player.direction = "right"
         isMoving = true
       end
     end
@@ -120,7 +120,7 @@ function player:update(dt, mapWidth, mapHeight)
         vx = player.speed * -1
         player.state = "walk"
         player.anim = player.animations.walk
-        player.lastHorizontal = "left"
+        player.direction = "left"
         isMoving = true
       end
     end
@@ -160,7 +160,7 @@ end
 function player:draw()
   local scale = 1.5
   local ox, oy = 32, 32
-  local sx = (player.lastHorizontal == "left") and -scale or scale
+  local sx = (player.direction == "left") and -scale or scale
 
   if player.state == "idle" then
     player.anim:draw(player.idleSpriteSheet, player.x, player.y, 0, sx, scale, ox, oy)

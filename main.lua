@@ -25,7 +25,11 @@ function love.load()
   player = Player.new(world, 845, 250)
 
   -- Enemies
-  enemy = Enemy.new("orc-shielder", world, 550, 200, 550, 200)
+  enemies = 
+  {
+    enemy1 = Enemy.new("skeleton", world, 550, 200, 550, 200),
+    enemy2 = Enemy.new("skeleton", world, 580, 430, 580, 430)
+  }
 
   -- Colliders
   colliders = {}
@@ -44,9 +48,12 @@ function love.update(dt)
   local mapWidth = gameMap.width * gameMap.tilewidth
   local mapHeight = gameMap.height * gameMap.tileheight
 
+  for _, enemy in pairs(enemies) do
+    enemy:update(dt)
+  end
+
   world:update(dt)
   player:update(dt, mapWidth, mapHeight)
-  enemy:update(dt)
   cam:lookAt(player.x, player.y)
 
   -- camera borders
@@ -62,7 +69,11 @@ function love.draw()
     gameMap:drawLayer(gameMap.layers['terrain1'])
     gameMap:drawLayer(gameMap.layers['structures'])
     gameMap:drawLayer(gameMap.layers['water'])
-    enemy:draw()
+    
+    for _, enemy in pairs(enemies) do
+      enemy:draw()
+    end
+
     player:draw()
 
     -- world:draw()

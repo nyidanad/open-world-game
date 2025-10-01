@@ -1,80 +1,107 @@
 local enemy = {}
+enemy.__index = enemy
 
 function enemy.new(type, world, x, y, ox, oy)
-  enemy.x = x
-  enemy.y = y
-  enemy.ox = ox  -- original x
-  enemy.oy = oy  -- original y
-  enemy.type = type
-  enemy.speed = 40
-  enemy.dead = false
+  local self = setmetatable({}, enemy)
 
-  enemy.idleSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-shielder-1.png')
-  -- enemy.walkSpriteSheet = love.graphics.newImage('res/sprites/enemies/orc-elite-5.png')
-  enemy.idle = anim8.newGrid(32, 32, enemy.idleSpriteSheet:getWidth(), enemy.idleSpriteSheet:getHeight())
-  -- enemy.walk = anim8.newGrid(32, 32, enemy.walkSpriteSheet:getWidth(), enemy.walkSpriteSheet:getHeight())
+  self.x = x
+  self.y = y
+  self.ox = ox  -- original x
+  self.oy = oy  -- original y
+  self.type = type
+  self.speed = 60
+  self.dead = false
+  self.canAttack = true
+  self.lastAttack = 0
+  self.attackCooldown = 1.5  -- 1.5 second delay between attacks
+
+  self.idleSpriteSheet  = love.graphics.newImage('res/sprites/enemies/skeleton-idle.png')
+  self.walkSpriteSheet  = love.graphics.newImage('res/sprites/enemies/skeleton-walk.png')
+  self.swordSpriteSheet = love.graphics.newImage('res/sprites/enemies/skeleton-attack.png')
+
+  self.idle  = anim8.newGrid(64, 64, self.idleSpriteSheet:getWidth(), self.idleSpriteSheet:getHeight())
+  self.walk  = anim8.newGrid(64, 64, self.walkSpriteSheet:getWidth(), self.walkSpriteSheet:getHeight())
+  self.sword = anim8.newGrid(64, 64, self.swordSpriteSheet:getWidth(), self.swordSpriteSheet:getHeight())
 
   -- animations
-  enemy.animations = {}
-  -- enemy.animations.idle = anim8.newAnimation(enemy.idle('1-2', 1), 0.4)
-  -- enemy.animations.right = anim8.newAnimation(enemy.walk('1-4', 1), 0.2)
-  -- enemy.animations.left  = anim8.newAnimation(enemy.walk('1-4', 2), 0.2)
-  -- enemy.animations.upRight = anim8.newAnimation(enemy.walk('1-4', 3), 0.2)
-  -- enemy.animations.upLeft  = anim8.newAnimation(enemy.walk('1-4', 4), 0.2)
-  -- enemy.animations.downRight = anim8.newAnimation(enemy.walk('1-4', 1), 0.2)
-  -- enemy.animations.downLeft  = anim8.newAnimation(enemy.walk('1-4', 2), 0.2)
+  self.animations = {}
+  self.animations.idle  = anim8.newAnimation(self.idle('1-2', 1), 0.6)
+  self.animations.walk  = anim8.newAnimation(self.walk('1-2', 1), 0.4)
+  self.animations.sword = anim8.newAnimation(self.sword('1-3', 1), 0.2)
 
   -- starting position
-  enemy.anim = enemy.animations.right
-  enemy.lastHorizontal = "right"
+  self.state = "idle"
+  self.anim = self.animations.right
+  self.direction = "right"
 
   -- collider
-  enemy.collider = world:newBSGRectangleCollider(x, y, 25, 16, 4)
-  enemy.collider:setFixedRotation(true)
+  self.collider = world:newBSGRectangleCollider(x, y, 25, 16, 4)
+  self.collider:setFixedRotation(true)
 
-  return enemy
+  return self
 end
 
 function enemy:update(dt)
   -- Basic AI: chase if close, else idle
-  local dx, dy = player.x - enemy.x, player.y - enemy.y
+  local dx, dy = player.x - self.x, player.y - self.y
   local dist = math.sqrt(dx*dx + dy*dy)
   local vx, vy = 0, 0
+  local timer = love.timer.getTime()
+
+  -- Cooldown between attacks
+  if (timer - self.lastAttack) >= self.attackCooldown and not self.canAttack then
+    self.canAttack = true
+  end
+
+  if self.state == "attack" and (timer - self.lastAttack) >= 0.5 and not self.canAttack then
+    self.anim:gotoFrame(1)
+    self.state = "idle"
+    self.anim = self.animations.idle
+  end
 
   if dist < 260 and dist > 45 then
       -- Chase
-      vx = (dx/dist) * enemy.speed
-      vy = (dy/dist) * enemy.speed
-      enemy.state = "chase"
-      enemy.anim = enemy.animations.walk
+      vx = (dx/dist) * self.speed
+      vy = (dy/dist) * self.speed
+      self.state = "chase"
+      self.anim = self.animations.walk
+
   elseif dist <= 45 then
+    if self.canAttack then
       -- Attack
-      enemy.state = "attack"
-      enemy.anim = enemy.animations.attack
-      enemy:attack()
+      self.state = "attack"
+      self.anim = self.animations.sword
+      self.lastAttack = timer
+      self.canAttack = false
+      self:attack()
+    end
+
   else
-      enemy.state = "idle"
-      enemy.anim = enemy.animations.idle
+      self.state = "idle"
+      self.anim = self.animations.idle
   end
 
   -- Dismiss logic: too far from spawnpoint
-  local dxo, dyo = enemy.x - enemy.ox, enemy.y - enemy.oy
+  local dxo, dyo = self.x - self.ox, self.y - self.oy
   local distFromOrigin = math.sqrt(dxo*dxo + dyo*dyo)
   if distFromOrigin > 625 then
-      enemy.collider:setPosition(enemy.ox, enemy.oy)
+      self.collider:setPosition(self.ox, self.oy)
       vx, vy = 0, 0
-      enemy.state = "idle"
+      self.state = "idle"
   end
 
-  enemy.collider:setLinearVelocity(vx, vy)
-
-  if not isMoving then
-    enemy.anim = enemy.animations.idle
+  -- Determine direction
+  if vx > 0 then
+    self.direction = "right"
+  elseif vx < 0 then
+    self.direction = "left"
   end
 
-  enemy.x = enemy.collider:getX()
-  enemy.y = enemy.collider:getY() - 16
-  -- enemy.anim:update(dt)
+  self.collider:setLinearVelocity(vx, vy)
+
+  self.x = self.collider:getX()
+  self.y = self.collider:getY() - 16
+  self.anim:update(dt)
 end
 
 function enemy:attack()
@@ -82,12 +109,17 @@ function enemy:attack()
 end
 
 function enemy:draw()
-  local scale = 1.75
-  local ox, oy = 16, 16
+  local scale = 1.3
+  local ox, oy = 32, 32
+  local sx = (self.direction == "left") and -scale or scale
 
-  if enemy.dead then return end
-    -- enemy.anim:draw(enemy.idleSpriteSheet, enemy.x, enemy.y, 0, scale, scale, ox, oy)
-    love.graphics.draw(enemy.idleSpriteSheet, enemy.x, enemy.y, 0, scale, scale, ox, oy)
+  if self.state == "idle" then
+    self.anim:draw(self.idleSpriteSheet, self.x, self.y, 0, sx, scale, ox, oy)
+  elseif self.state == "chase" then
+    self.anim:draw(self.walkSpriteSheet, self.x, self.y, 0, sx, scale, ox, oy)
+  elseif self.state == "attack" then
+    self.anim:draw(self.swordSpriteSheet, self.x, self.y, 0, sx, scale, ox, oy)
+  end
 end
 
 return enemy
