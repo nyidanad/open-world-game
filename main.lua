@@ -21,15 +21,17 @@ function love.load()
   -- Physics world
   world = windfield.newWorld(0, 0)
 
-  -- Player
-  player = Player.new(world, 845, 250)
-
   -- Enemies
   enemies = 
   {
     enemy1 = Enemy.new("skeleton", world, 550, 200, 550, 200),
-    enemy2 = Enemy.new("skeleton", world, 580, 430, 580, 430)
+    enemy2 = Enemy.new("skeleton", world, 580, 430, 580, 430),
+    enemy3 = Enemy.new("skeleton", world, 1100, 150, 1100, 150),
+    enemy4 = Enemy.new("skeleton", world, 1080, 425, 1080, 425)
   }
+
+  -- Player
+  player = Player.new(world, 845, 250, enemies)
 
   -- Colliders
   colliders = {}
@@ -48,7 +50,7 @@ function love.update(dt)
   local mapWidth = gameMap.width * gameMap.tilewidth
   local mapHeight = gameMap.height * gameMap.tileheight
 
-  for _, enemy in pairs(enemies) do
+  for i, enemy in pairs(enemies) do
     enemy:update(dt)
   end
 
@@ -82,6 +84,6 @@ end
 
 function love.mousepressed(x, y, button)
   if button == 1 then
-    player:attack()
+    player:comboCheck()
   end
 end
