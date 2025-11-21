@@ -1,217 +1,244 @@
 local player = {}
 
-function player.new(world, x, y, enemies)
+function player.load(world, x, y)
   player.x = x
   player.y = y
-  player.speed = 150
+  player.dir = "down"
+  player.dirX = 1
+  player.dirY = 1
+  player.scale = 0.65
+  player.speed = 65
+  player.animSpeed = 0.14
+  player.walking = false
+  player.animTimer = 0
+  player.health = 4
+  player.damage = 0
+  player.damagedTimer = 0
+  player.damagedBool = 1
+  player.damagedFlashTime = 0.05
+  player.attackTimer = 0
+  player.deathTimer = 1.75
 
-  -- combat
-  player.combo = 1
-  player.lastAttack = 0
-  player.comboWindow = 1.5
-  player.enemies = enemies
-  player.damage = 25
-  player.health = 100
-  player.dead = false
-  player.attackDelay = 0
+  -- 0: idle
+  -- 1: walking
+  -- 2: swing sword
+  -- 10: stunned
+  -- 11: dying
+  -- 11.1: dead
+  player.state = 0
 
-  player.idleSpriteSheet  = love.graphics.newImage('res/sprites/player/player-idle-sword.png')
-  player.walkSpriteSheet  = love.graphics.newImage('res/sprites/player/player-walk-sword.png')
-  player.swordSpriteSheet = love.graphics.newImage('res/sprites/player/player-attack-sword.png')
-  player.deathSpriteSheet = love.graphics.newImage('res/sprites/player/player-idle-sword.png')
+  player.spriteSheet = love.graphics.newImage('res/sprites/player/geralt-silver.png')
 
-  player.idle  = anim8.newGrid(64, 64, player.idleSpriteSheet:getWidth(), player.idleSpriteSheet:getHeight())
-  player.walk  = anim8.newGrid(64, 64, player.walkSpriteSheet:getWidth(), player.walkSpriteSheet:getHeight())
-  player.sword = anim8.newGrid(64, 64, player.swordSpriteSheet:getWidth(), player.swordSpriteSheet:getHeight())
-  player.death = anim8.newGrid(64, 64, player.idleSpriteSheet:getWidth(), player.idleSpriteSheet:getHeight())
+  player.grid = anim8.newGrid(128, 128, player.spriteSheet:getWidth(), player.spriteSheet:getHeight())
 
-  -- animations
   player.animations = {}
-  player.animations.idle    = anim8.newAnimation(player.idle('1-2', 1), 0.4)
-  player.animations.walk    = anim8.newAnimation(player.walk('1-4', 1), 0.2)
-  player.animations.walkUp  = anim8.newAnimation(player.walk('1-4', 2), 0.2)
-  player.animations.attack1 = anim8.newAnimation(player.sword('1-2', 1), 0.2)
-  player.animations.attack2 = anim8.newAnimation(player.sword('1-2', 2), 0.3)
-  player.animations.death = anim8.newAnimation(player.idle('1-2', 1), 0.4)
+  player.animations.spellcastUp    = anim8.newAnimation(player.grid('1-7', 1), player.animSpeed)
+  player.animations.spellcastLeft  = anim8.newAnimation(player.grid('1-7', 2), player.animSpeed)
+  player.animations.spellcastDown  = anim8.newAnimation(player.grid('1-7', 3), player.animSpeed)
+  player.animations.spellcastRight = anim8.newAnimation(player.grid('1-7', 4), player.animSpeed)
+  player.animations.walkUp    = anim8.newAnimation(player.grid('1-9', 5), player.animSpeed)
+  player.animations.walkLeft  = anim8.newAnimation(player.grid('1-9', 6), player.animSpeed)
+  player.animations.walkDown  = anim8.newAnimation(player.grid('1-9', 7), player.animSpeed)
+  player.animations.walkRight = anim8.newAnimation(player.grid('1-9', 8), player.animSpeed)
+  player.animations.death = anim8.newAnimation(player.grid('1-6', 9), 0.2, "pauseAtEnd")
+  player.animations.idleUp    = anim8.newAnimation(player.grid('1-2', 10), 0.8)
+  player.animations.idleLeft  = anim8.newAnimation(player.grid('1-2', 11), 0.8)
+  player.animations.idleDown  = anim8.newAnimation(player.grid('1-2', 12), 0.8)
+  player.animations.idleRight = anim8.newAnimation(player.grid('1-2', 13), 0.8)
+  player.animations.incombatUp    = anim8.newAnimation(player.grid('1-2', 22), 0.3)
+  player.animations.incombatLeft  = anim8.newAnimation(player.grid('1-2', 23), 0.3)
+  player.animations.incombatDown  = anim8.newAnimation(player.grid('1-2', 24), 0.3)
+  player.animations.incombatRight = anim8.newAnimation(player.grid('1-2', 25), 0.3)
+  player.animations.attack1Up    = anim8.newAnimation(player.grid('1-6', 26), 0.09)
+  player.animations.attack1Left  = anim8.newAnimation(player.grid('1-6', 27), 0.09)
+  player.animations.attack1Down  = anim8.newAnimation(player.grid('1-6', 28), 0.09)
+  player.animations.attack1Right = anim8.newAnimation(player.grid('1-6', 29), 0.09)
+  player.animations.attack3Up    = anim8.newAnimation(player.grid('1-13', 30), 0.1)
+  player.animations.attack3Left  = anim8.newAnimation(player.grid('1-13', 31), 0.1)
+  player.animations.attack3Down  = anim8.newAnimation(player.grid('1-13', 32), 0.1)
+  player.animations.attack3Right = anim8.newAnimation(player.grid('1-13', 33), 0.1)
+  player.animations.attack2Up    = anim8.newAnimation(player.grid('1-6', 34), 0.11)
+  player.animations.attack2Left  = anim8.newAnimation(player.grid('1-6', 35), 0.11)
+  player.animations.attack2Down  = anim8.newAnimation(player.grid('1-6', 36), 0.11)
+  player.animations.attack2Right = anim8.newAnimation(player.grid('1-6', 37), 0.11)
 
-  -- starting position
-  player.state = "idle"
-  player.anim = player.animations.idle
-  player.direction = "right"
+  player.anim = player.animations.idleRight
 
   -- collider
-  player.collider = world:newBSGRectangleCollider(x, y, 25, 16, 4)
+  player.collider = world:newBSGRectangleCollider(x, y, 16, 10, 3)
   player.collider:setFixedRotation(true)
+
+  player.sfx = {
+    sword_swing_1 = love.audio.newSource('res/sounds/sfx/sword-swing-1.mp3', 'static'),
+    sword_swing_2 = love.audio.newSource('res/sounds/sfx/sword-swing-2.mp3', 'static'),
+    sword_swing_3 = love.audio.newSource('res/sounds/sfx/sword-swing-3.mp3', 'static'),
+    sword_swing_4 = love.audio.newSource('res/sounds/sfx/sword-swing-4.mp3', 'static'),
+    sword_swing_5 = love.audio.newSource('res/sounds/sfx/sword-swing-5.mp3', 'static'),
+    dying = love.audio.newSource('res/sounds/sfx/dying.mp3', 'static'),
+  }
 
   return player
 end
 
-function player:comboCheck()
-  local timer = love.timer.getTime()
-  local dif = timer - player.lastAttack
+function player.update(dt, mapWidth, mapHeight)
+  local vx, vy = 0, 0
+  player.walking = false
 
-  -- first attack
-  if player.combo == 1 then
-    player.state = "attack"
-    player.anim = player.animations.attack1
-    player.lastAttack = timer
-    if (player.lastAttack >= 0.2) then
-      player:attack()
-      player.combo = 2
+  -- checking while dying
+  if player.health == 0 then
+    if player.state ~= 11 then
+      player.state = 11
+      player.anim = player.animations.death
+    end
+
+    player.deathTimer = player.deathTimer - dt
+    player.collider:setLinearVelocity(0, 0)
+    player.anim:update(dt)
+
+    if player.deathTimer <= 0 then
+      player.state = 11.1  -- trigger gameover scene after deathTimer is over
+    end
+
+    return  -- stops update here so player cannot move while dead
+  end
+
+  -- checking while swinging sword
+  if math.floor(player.state) == 2 then
+    player.attackTimer = player.attackTimer - dt
+    player.collider:setLinearVelocity(0, 0)
+    player.anim:update(dt)
+
+    -- handel double swing sfx
+    if player.state == 2.3 then
+      if player.attackTimer < 0.5 then
+        player.sfx.sword_swing_4:play()
+      else
+        player.sfx.sword_swing_5:play()
+      end
+    end
+
+    if player.attackTimer <= 0 then
+      player.state = 0
+    end
+
+    return  -- stops update here so player cannot move while attacking
+  end
+
+  -- TEMPORARY KEYBINDINGS
+  if love.keyboard.isDown('9') then
+    player.health = 0
+    player.sfx.dying:play()
+  end
+
+  -- movement animation updates
+  -- Note: only able to walk if not swinging sword or not dead
+  if love.keyboard.isDown('d') then
+    if player.x < (mapWidth - 64)  then
+      player.state = 1
+      player.walking = true
+      player.dir = "right"
+      player.anim = player.animations.walkRight
+      vx = player.speed
+    end
+  end
+  if love.keyboard.isDown('a') then
+    if player.x > 64 then
+      player.state = 1
+      player.walking = true
+      player.dir = "left"
+      player.anim = player.animations.walkLeft
+      vx = player.speed * -1
+    end
+  end
+  if love.keyboard.isDown('w') then
+    if player.y > 64 then
+      player.state = 1
+      player.walking = true
+      player.dir = "up"
+      player.anim = player.animations.walkUp
+      vy = player.speed * -1
+    end
+  end
+  if love.keyboard.isDown('s') then
+    if player.y < (mapHeight - 64) then
+      player.state = 1
+      player.walking = true
+      player.dir = "down"
+      player.anim = player.animations.walkDown
+      vy = player.speed
+    end
+  end
+
+  -- attack animation updates
+  if love.keyboard.isDown("j") then
+    if player.state ~= 2 then        -- prevents spamming
+      player.state = 2.1
+      player.attackTimer = 0.55
+      if     player.dir == "up"    then player.anim = player.animations.attack1Up
+      elseif player.dir == "left"  then player.anim = player.animations.attack1Left
+      elseif player.dir == "down"  then player.anim = player.animations.attack1Down
+      elseif player.dir == "right" then player.anim = player.animations.attack1Right
+      end
+      player.anim:gotoFrame(1)
+      player.sfx.sword_swing_2:play()
+    end
+  end
+  if love.keyboard.isDown("k") then
+    if player.state ~= 2 then        -- prevents spamming
+      player.state = 2.2
+      player.attackTimer = 0.6
+      if     player.dir == "up"    then player.anim = player.animations.attack2Up
+      elseif player.dir == "left"  then player.anim = player.animations.attack2Left
+      elseif player.dir == "down"  then player.anim = player.animations.attack2Down
+      elseif player.dir == "right" then player.anim = player.animations.attack2Right
+      end
+      player.anim:gotoFrame(1)
+      player.sfx.sword_swing_1:play()
+    end
+  end
+  if love.keyboard.isDown("l") then
+    if player.state ~= 2 then        -- prevents spamming
+      player.state = 2.3
+      player.attackTimer = 1
+      if     player.dir == "up"    then player.anim = player.animations.attack3Up
+      elseif player.dir == "left"  then player.anim = player.animations.attack3Left
+      elseif player.dir == "down"  then player.anim = player.animations.attack3Down
+      elseif player.dir == "right" then player.anim = player.animations.attack3Right
+      end
       player.anim:gotoFrame(1)
     end
-
-  -- second attack
-  elseif player.combo == 2 and dif <= player.comboWindow and dif >= 0.2 then
-    player.state = "attack"
-    player.anim = player.animations.attack2
-    player.lastAttack = timer
-    if (player.lastAttack >= 0.8) then
-      player:attack()
-      player.combo = 3
-    end
-  
-  -- remove attack state
-  elseif player.combo == 3  and dif >= 0.6 then
-    player.state = "idle"
-    player.anim = player.animations.idle
-    player.anim:gotoFrame(1)
-    player.combo = 1
-  end
-end
-
-function player:attack()
-  if player.enemies then
-    for _, enemy in pairs(player.enemies) do
-      if not enemy.dead then
-        local dx, dy = enemy.x - player.x, enemy.y - player.y
-        local dist = math.sqrt(dx*dx + dy*dy)
-        if dist <= 50 then
-          enemy:takeDamage(player.damage)
-        end
-      end
-    end
-  end
-end
-
-function player:takeDamage(amount, dt)
-  player.health = player.health - amount
-
-  if player.health <= 0 then
-    player.state = "dead"
-    player.dead = true
-    player.collider:destroy()
-    player.health = 0
-  end
-end
-
-
-function player:update(dt, mapWidth, mapHeight)
-  local vx, vy = 0, 0
-  local isMoving = false
-  local timer = love.timer.getTime()
-  local dif = timer - player.lastAttack
-
-  if player.dead then 
-    player.state = "dead"
-    player.anim = player.animations.death
-
-  else
-    -- cancel combo
-    if player.state == "attack" then
-      if player.combo == 2 and dif >= 0.4 then
-        player.combo = 1
-        player.anim:gotoFrame(1)
-        player.state = "idle"
-        player.anim = player.animations.idle
-      end
-    
-      if player.combo == 3 and dif >= 0.4 then
-        player.combo = 1
-        player.anim:gotoFrame(1)
-        player.state = "idle"
-        player.anim = player.animations.idle
-      end
-    
-    end
-    
-    if dif >= player.comboWindow then
-      player.combo = 1
-      if player.state == "attack" then
-        player.state = "idle"
-        player.anim = player.animations.idle
-      end
-    end
-  
-    if player.state ~= "attack" then
-      if love.keyboard.isDown('d') then
-        if player.x < (mapWidth - 32)  then
-          vx = player.speed
-          player.state = "walk"
-          player.anim = player.animations.walk
-          player.direction = "right"
-          isMoving = true
-        end
-      end
-    
-      if love.keyboard.isDown('a') then
-        if player.x > 32 then
-          vx = player.speed * -1
-          player.state = "walk"
-          player.anim = player.animations.walk
-          player.direction = "left"
-          isMoving = true
-        end
-      end
-    
-      if love.keyboard.isDown('w') then
-        if player.y > 32 then
-          vy = player.speed * -1
-          player.state = "walk"
-          player.anim = player.animations.walkUp
-          isMoving = true
-        end
-      end
-    
-      if love.keyboard.isDown('s') then
-        if player.y < (mapHeight - 32) then
-          vy = player.speed
-          player.state = "walk"
-          player.anim = player.animations.walk
-          isMoving = true
-        end
-      end
-    end
-  
-    player.collider:setLinearVelocity(vx, vy)
-  
-    if not isMoving and player.state ~= "attack" then
-      player.state = "idle"
-      player.anim = player.animations.idle
-    end
-  
-    player.x = player.collider:getX()
-    player.y = player.collider:getY() - 16
   end
 
+  -- ability (sings) animation updates
+  -- Note: <u>: Aard
+  --       <i>: Quen
+  --       <o>: Igni
+  --       <p>: Axii
+
+  player.collider:setLinearVelocity(vx, vy)
+  
+  -- checking when to IDLE
+  if not player.walking and player.state < 2 then
+    player.state = 0
+    if     player.dir == "up"    then player.anim = player.animations.idleUp
+    elseif player.dir == "left"  then player.anim = player.animations.idleLeft
+    elseif player.dir == "down"  then player.anim = player.animations.idleDown
+    elseif player.dir == "right" then player.anim = player.animations.idleRight
+    end
+  end
+
+  player.x = player.collider:getX()
+  player.y = player.collider:getY() - 14
+  
   player.anim:update(dt)
 end
 
+function player.draw()
+  local ox, oy = 64, 64
 
-function player:draw()
-  local scale = 1.5
-  local ox, oy = 32, 32
-  local sx = (player.direction == "left") and -scale or scale
-
-  if player.state == "idle" then
-    player.anim:draw(player.idleSpriteSheet, player.x, player.y, 0, sx, scale, ox, oy)
-  elseif player.state == "walk" then
-    player.anim:draw(player.walkSpriteSheet, player.x, player.y, 0, sx, scale, ox, oy)
-  elseif player.state == "attack" then
-    player.anim:draw(player.swordSpriteSheet, player.x, player.y, 0, sx, scale, ox, oy)
-  elseif player.state == "dead" then
-    player.anim:draw(player.idleSpriteSheet, player.x, player.y, 0, sx, scale, ox, oy)  -- TODO: add death animation
-  end
+  love.graphics.setColor(1, 1, 1, player.damagedBool)
+  player.anim:draw(player.spriteSheet, player.x, player.y, 0, player.scale, player.scale, ox, oy)
+  love.graphics.setColor(1, 1, 1, 1)
 end
 
 return player
