@@ -1,4 +1,5 @@
 local Player = require 'src.player'
+local Enemy = require 'src.enemies.enemy'
 local menu   = require 'src.ui.menu'
 local zoom   = 4
 local background = nil
@@ -57,6 +58,10 @@ function love.update(dt)
 
     world:update(dt)
     player.update(dt, mapWidth, mapHeight)
+    for i, enemy in ipairs(enemies) do
+      enemy:update(dt)
+    end
+
     cam:lookAt(player.x, player.y)
 
     -- camera borders
@@ -81,17 +86,26 @@ function love.draw()
     menu.draw("")
   else
     cam:attach(0, 0, love.graphics.getWidth(), love.graphics.getHeight(), 3)
+      -- bottom layers
       gameMap:drawLayer(gameMap.layers['ground'])
       gameMap:drawLayer(gameMap.layers['grass'])
       gameMap:drawLayer(gameMap.layers['walkway'])
       gameMap:drawLayer(gameMap.layers['water'])
       gameMap:drawLayer(gameMap.layers['grave-yard-rocks'])
-      gameMap:drawLayer(gameMap.layers['props-z0'])
+      gameMap:drawLayer(gameMap.layers['props-z0-bottom'])
       gameMap:drawLayer(gameMap.layers['walls-bottom'])
       gameMap:drawLayer(gameMap.layers['objects-bottom'])
       gameMap:drawLayer(gameMap.layers['props-z1-bottom'])
       gameMap:drawLayer(gameMap.layers['props-z2-bottom'])
+
+      for i, enemy in ipairs(enemies) do
+        enemy:draw()
+      end
+      
       player:draw()
+      
+      -- top layers
+      gameMap:drawLayer(gameMap.layers['props-z0-top'])
       gameMap:drawLayer(gameMap.layers['walls-top'])
       gameMap:drawLayer(gameMap.layers['objects-top'])
       gameMap:drawLayer(gameMap.layers['props-z1-top'])
@@ -152,15 +166,24 @@ function startGame()
   -- Player
   player = Player.load(world, 775, 660)
 
+  -- Enemies
+  enemies = {}
+  if gameMap.layers["Enemies"] then
+    for i, obj in pairs(gameMap.layers["Enemies"].objects) do
+      local enemy = Enemy.load(world, obj.x, obj.y, obj.type, obj.properties.state, obj.properties.dir)
+      table.insert(enemies, enemy)
+    end
+  end
+
   -- Colliders
-  -- colliders = {}
-  -- if gameMap.layers["Colliders"] then
-  --   for i, obj in pairs(gameMap.layers["Colliders"].objects) do
-  --     local collider = world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
-  --     collider:setType('static')
-  --     table.insert(colliders, collider)
-  --   end
-  -- end
+  colliders = {}
+  if gameMap.layers["Colliders"] then
+    for i, obj in pairs(gameMap.layers["Colliders"].objects) do
+      local collider = world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+      collider:setType('static')
+      table.insert(colliders, collider)
+    end
+  end
 
   menu.state = 1
 end
