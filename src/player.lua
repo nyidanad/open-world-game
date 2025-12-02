@@ -1,6 +1,6 @@
 local player = {}
 
-function player.load(world, x, y)
+function player.load(world, x, y, enemies)
   player.x = x
   player.y = y
   player.dir = "down"
@@ -12,12 +12,17 @@ function player.load(world, x, y)
   player.walking = false
   player.animTimer = 0
   player.health = 4
-  player.damage = 0
+  player.damage = 1
   player.damagedTimer = 0
+  player.damageDelayTimer = 0
   player.damagedBool = 1
-  player.damagedFlashTime = 0.05
+  player.damagedFlashTime = 0.1
+  player.attacked = false
   player.attackTimer = 0
+  player.attackRange = 40
   player.deathTimer = 1.75
+  player.invulnerable = false
+  player.invulnerableTimer = 0
 
   -- 0: idle
   -- 1: walking
@@ -89,6 +94,7 @@ function player.update(dt, mapWidth, mapHeight)
     if player.state ~= 11 then
       player.state = 11
       player.anim = player.animations.death
+      player.sfx.dying:play()
     end
 
     player.deathTimer = player.deathTimer - dt
@@ -96,6 +102,7 @@ function player.update(dt, mapWidth, mapHeight)
     player.anim:update(dt)
 
     if player.deathTimer <= 0 then
+      player.sfx.dying:stop()
       player.state = 11.1  -- trigger gameover scene after deathTimer is over
     end
 
@@ -105,15 +112,32 @@ function player.update(dt, mapWidth, mapHeight)
   -- checking while swinging sword
   if math.floor(player.state) == 2 then
     player.attackTimer = player.attackTimer - dt
+    player.damageDelayTimer = player.damageDelayTimer - dt
     player.collider:setLinearVelocity(0, 0)
     player.anim:update(dt)
 
-    -- handel double swing sfx
-    if player.state == 2.3 then
-      if player.attackTimer < 0.5 then
+    -- light attack
+    if player.state == 2.1 then
+      player.damage = 1
+    
+    -- heavy attack
+    elseif player.state == 2.2 then
+      player.damage = 2
+
+    -- group attack
+    elseif player.state == 2.3 then
+      player.damage = 1
+      if player.attackTimer <= 0.5 then
         player.sfx.sword_swing_4:play()
       else
         player.sfx.sword_swing_5:play()
+      end
+    end
+
+    if player.damageDelayTimer <= 0 then
+      if player.attacked then
+        player:dealDamage(enemies)
+        player.attacked = false
       end
     end
 
@@ -124,10 +148,35 @@ function player.update(dt, mapWidth, mapHeight)
     return  -- stops update here so player cannot move while attacking
   end
 
+  -- checking if player get hurt
+  if player.invulnerable then
+    player.invulnerableTimer = player.invulnerableTimer - dt
+    player.damagedTimer = player.damagedTimer - dt
+
+    -- blinking logic while player invulnerable
+    if player.damagedTimer <= 0 then
+      if player.damagedBool == 1 then
+        player.damagedBool = 0.3
+      else
+        player.damagedBool = 1
+      end
+
+      player.damagedTimer = player.damagedFlashTime
+    end
+    
+    if player.invulnerableTimer <= 0 then
+      player.invulnerable = false
+      player.damagedBool = 1
+    end
+  end
+
   -- TEMPORARY KEYBINDINGS
   if love.keyboard.isDown('9') then
     player.health = 0
-    player.sfx.dying:play()
+  end
+
+  if love.keyboard.isDown('8') then
+    player:hurt(0.00001)
   end
 
   -- movement animation updates
@@ -174,6 +223,8 @@ function player.update(dt, mapWidth, mapHeight)
     if player.state ~= 2 then        -- prevents spamming
       player.state = 2.1
       player.attackTimer = 0.55
+      player.damageDelayTimer = 0.25
+      player.attacked = true
       if     player.dir == "up"    then player.anim = player.animations.attack1Up
       elseif player.dir == "left"  then player.anim = player.animations.attack1Left
       elseif player.dir == "down"  then player.anim = player.animations.attack1Down
@@ -187,6 +238,8 @@ function player.update(dt, mapWidth, mapHeight)
     if player.state ~= 2 then        -- prevents spamming
       player.state = 2.2
       player.attackTimer = 0.6
+      player.damageDelayTimer = 0.22
+      player.attacked = true
       if     player.dir == "up"    then player.anim = player.animations.attack2Up
       elseif player.dir == "left"  then player.anim = player.animations.attack2Left
       elseif player.dir == "down"  then player.anim = player.animations.attack2Down
@@ -200,6 +253,8 @@ function player.update(dt, mapWidth, mapHeight)
     if player.state ~= 2 then        -- prevents spamming
       player.state = 2.3
       player.attackTimer = 1
+      player.damageDelayTimer = 0.4
+      player.attacked = true
       if     player.dir == "up"    then player.anim = player.animations.attack3Up
       elseif player.dir == "left"  then player.anim = player.animations.attack3Left
       elseif player.dir == "down"  then player.anim = player.animations.attack3Down
@@ -239,6 +294,37 @@ function player.draw()
   love.graphics.setColor(1, 1, 1, player.damagedBool)
   player.anim:draw(player.spriteSheet, player.x, player.y, 0, player.scale, player.scale, ox, oy)
   love.graphics.setColor(1, 1, 1, 1)
+end
+
+function player:dealDamage(enemies)
+  for _, enemy in ipairs(enemies) do
+    local dx, dy = enemy.x - player.x, enemy.y - player.y
+    local dist = math.sqrt(dx*dx + dy*dy)
+  
+    if dist <= player.attackRange then
+      -- check if enemy is dead
+      if math.floor(enemy.state) ~= 11 then
+        -- check if enemy is front of player on light and heavy attack
+        if self.state == 2.1 or self.state == 2.2 then
+          if     player.dir == "up"    and dy < 0 then enemy:hurt(player.damage)
+          elseif player.dir == "down"  and dy > 0 then enemy:hurt(player.damage)
+          elseif player.dir == "left"  and dx < 0 then enemy:hurt(player.damage)
+          elseif player.dir == "right" and dx > 0 then enemy:hurt(player.damage)
+          end
+        -- dont check direction on group attack
+        elseif self.state == 2.3 then
+          enemy:hurt(player.damage)
+        end
+      end
+    end
+  end
+end
+
+function player:hurt(amount)
+  player.invulnerable = true
+  player.invulnerableTimer = 4
+  player.damagedTimer = 0.1
+  player.health = player.health - amount
 end
 
 return player

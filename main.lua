@@ -164,13 +164,13 @@ function startGame()
   world = windfield.newWorld(0, 0)
 
   -- Player
-  player = Player.load(world, 775, 660)
+  player = Player.load(world, 775, 660, enemies)
 
   -- Enemies
   enemies = {}
   if gameMap.layers["Enemies"] then
     for i, obj in pairs(gameMap.layers["Enemies"].objects) do
-      local enemy = Enemy.load(world, obj.x, obj.y, obj.type, obj.properties.state, obj.properties.dir)
+      local enemy = Enemy.load(world, obj.x, obj.y, obj.type, obj.properties.state, obj.properties.dir, player, enemies)
       table.insert(enemies, enemy)
     end
   end

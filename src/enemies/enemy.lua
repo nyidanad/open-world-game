@@ -1,19 +1,20 @@
 local enemyTypes = require('src.enemies.enemyTypes')
-local player = require('src.player')
 
 local enemy = {}
 enemy.__index = enemy
 
-function enemy.load(world, x, y, type, initState, initDir)
+function enemy.load(world, x, y, type, initState, initDir, player, enemies)
   local self = setmetatable({}, enemy)
   local data = enemyTypes[type]
-
+  
   -- origin properties
   self.spawnX = x
   self.spawnY = y
   self.initState = initState
   self.initDir = initDir
   self.initialSpeed = data.speed
+  self.player = player
+  self.initHealth = data.health
 
   -- per-type properties
   self.spriteSheet = love.graphics.newImage(data.sprite)
@@ -34,7 +35,6 @@ function enemy.load(world, x, y, type, initState, initDir)
   self.chasing = false
   self.leashing = false
   self.animTimer = 0
-  self.deathTimer = 1.75
   self.damagedBool = 1
   self.damagedFlashTime = 0.05
   self.damagedTimer = 0
@@ -48,6 +48,7 @@ function enemy.load(world, x, y, type, initState, initDir)
   self.spellCooldown = 2
   self.spellTimer = 0
   self.isSpellcaster = data.isSpellcaster
+  self.despawnTimer = 180
 
   -- 0: idle
   -- 0.1: incombat idle
@@ -76,6 +77,30 @@ function enemy.load(world, x, y, type, initState, initDir)
 end
 
 function enemy:update(dt)
+  -- checking if enemy dead
+  if self.health <= 0 then
+    if self.state ~= 11 then
+      self.state = 11
+      self.anim = self.animations.death
+    end
+
+    self.despawnTimer = self.despawnTimer - dt
+    self.collider:setLinearVelocity(0, 0)
+    self.anim:update(dt)
+    
+    if self.despawnTimer <= 0 then
+      for i, e in ipairs(enemies) do
+        if e == self then
+          self.collider:destroy()
+          table.remove(enemies, i)
+          break
+        end
+      end
+    end
+
+    return  -- stops update here so enemy cannot move while dead
+  end
+
   -- idle animations
   if math.floor(self.state) == 0 then
     -- normal idle animations
@@ -178,10 +203,22 @@ function enemy:update(dt)
 end
 
 function enemy:draw()
-  local ox, oy = 64, 64
+  -- enemy sprite
+  self.anim:draw(self.spriteSheet, self.x, self.y, 0, self.scale, self.scale, 64, 64)
 
-  love.graphics.setColor(1, 1, 1, self.damagedBool)
-  self.anim:draw(self.spriteSheet, self.x, self.y, 0, self.scale, self.scale, ox, oy)
+  -- HP bar position
+  local barWidth = self.initHealth * 8
+  local barHeight = 1
+  local x = self.x - barWidth/2
+  local y = self.y - 20
+  
+  local healthPercent = self.health / self.initHealth
+  local hpWidth = barWidth * healthPercent
+
+  love.graphics.setColor(0, 0, 0, 0.6)
+  love.graphics.rectangle("fill", x, y, barWidth, barHeight)
+  love.graphics.setColor(1, 0, 0, 1)
+  love.graphics.rectangle("fill", x, y, hpWidth, barHeight)
   love.graphics.setColor(1, 1, 1, 1)
 end
 
@@ -189,13 +226,13 @@ end
 -- Note: also here we handle when to attack
 function enemy:chase()
   -- distance between agro and player
-  local agrX = player.x - self.spawnX
-  local agrY = player.y - self.spawnY
+  local agrX = self.player.x - self.spawnX
+  local agrY = self.player.y - self.spawnY
   local agroDist = math.sqrt(agrX*agrX + agrY*agrY)
 
   -- distance between player and enemy
-  local dx = player.x - self.x
-  local dy = player.y - self.y
+  local dx = self.player.x - self.x
+  local dy = self.player.y - self.y
   local dist = math.sqrt(dx*dx + dy*dy)
 
   -- distance between enemy and its spawnpoint
@@ -294,6 +331,14 @@ function enemy:attack()
 
   self.onCooldown = true
   self.anim:gotoFrame(1)
+end
+
+function enemy:hurt(amount)
+  if self.health < amount then
+    self.health = 0
+  else
+    self.health = self.health - amount
+  end
 end
 
 return enemy
