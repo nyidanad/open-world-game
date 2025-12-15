@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="left-down" width="124" height="68" tilewidth="32" tileheight="32" infinite="0" nextlayerid="25" nextobjectid="149">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="left-down" width="124" height="68" tilewidth="32" tileheight="32" infinite="0" nextlayerid="26" nextobjectid="163">
  <editorsettings>
   <export target="village.lua" format="lua"/>
  </editorsettings>
@@ -1786,6 +1786,50 @@
     <property name="dir" value="left"/>
     <property name="state" type="int" value="0"/>
    </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="25" name="Lights">
+  <object id="149" name="light_source" x="838" y="619">
+   <point/>
+  </object>
+  <object id="150" name="light_source" x="874" y="619">
+   <point/>
+  </object>
+  <object id="151" name="light_source" x="678" y="587">
+   <point/>
+  </object>
+  <object id="152" name="light_source" x="714" y="587">
+   <point/>
+  </object>
+  <object id="153" name="light_source" x="486" y="491">
+   <point/>
+  </object>
+  <object id="154" name="light_source" x="522" y="491">
+   <point/>
+  </object>
+  <object id="155" name="light_source" x="934" y="427">
+   <point/>
+  </object>
+  <object id="156" name="light_source" x="970" y="427">
+   <point/>
+  </object>
+  <object id="157" name="light_source" x="1126" y="555">
+   <point/>
+  </object>
+  <object id="158" name="light_source" x="1162" y="555">
+   <point/>
+  </object>
+  <object id="159" name="light_source" x="614" y="299">
+   <point/>
+  </object>
+  <object id="160" name="light_source" x="650" y="299">
+   <point/>
+  </object>
+  <object id="161" name="light_source" x="1030" y="235">
+   <point/>
+  </object>
+  <object id="162" name="light_source" x="1066" y="235">
    <point/>
   </object>
  </objectgroup>

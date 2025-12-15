@@ -1,10 +1,19 @@
 local Player = require 'src.player'
 local Enemy = require 'src.enemies.enemy'
 local menu   = require 'src.ui.menu'
+local hud = require 'src.ui.hud'
 local zoom   = 4
 local background = nil
 
+-- 0: daylight
+-- 1: night
+-- 2: cave
+local daytime = 0
+
 function love.load()
+  shaders = require('src.utils.shaders')
+
+
   music = {
     mainmenu = love.audio.newSource('res/sounds/music/main-menu.mp3', 'stream'),
     kaer_morhen = love.audio.newSource('res/sounds/music/kaer-morhen.mp3', 'stream'),
@@ -31,6 +40,24 @@ function love.update(dt)
   else
     music.mainmenu:stop()
     if menu.state == 1 then  -- running
+      if daytime == 1 then
+        local lightData = {}
+        local count = math.min(#lights, 16)
+
+        for i = 1, count do
+          local lx, ly = worldToScreen(cam, lights[i].x, lights[i].y)
+          table.insert(lightData, { lx, ly, lights[i].radius })
+        end
+
+        shaders.multiLight:send("numLights", count)
+        shaders.multiLight:send("lightPositions", unpack(lightData))
+      end
+    
+      if daytime == 2 then
+        local px, py = worldToScreen(cam, player.x, player.y)
+        shaders.light:send("playerPosition", { px, py })
+      end
+      
       music.kaer_morhen:play()
       music.kaer_morhen:setVolume(0.15)
     else
@@ -86,6 +113,9 @@ function love.draw()
     menu.draw("")
   else
     cam:attach(0, 0, love.graphics.getWidth(), love.graphics.getHeight(), 3)
+
+      love.graphics.setColor(1, 1, 1, 1)
+      
       -- bottom layers
       gameMap:drawLayer(gameMap.layers['ground'])
       gameMap:drawLayer(gameMap.layers['grass'])
@@ -110,9 +140,25 @@ function love.draw()
       gameMap:drawLayer(gameMap.layers['objects-top'])
       gameMap:drawLayer(gameMap.layers['props-z1-top'])
       gameMap:drawLayer(gameMap.layers['props-z2-top'])
+
+      -- nighttime
+      if daytime == 1 then
+        love.graphics.setShader(shaders.multiLight)
+        love.graphics.setColor(0.22, 0.26, 0.32, 0.7)
+        love.graphics.rectangle('fill', 0, 0, 3968, 2176)
+        love.graphics.setShader()
+
+      -- cave shaders
+      elseif daytime == 2 then
+        love.graphics.setShader(shaders.light)
+        love.graphics.setColor(0, 0, 0, 0.9)
+        love.graphics.rectangle('fill', 0, 0, 3968, 2176)
+      end
       
+      love.graphics.setShader()
       -- world:draw()
     cam:detach()
+    hud.draw()
 
     if menu.state == 2 then
       love.graphics.setColor(0, 0, 0, 0.8)
@@ -147,6 +193,13 @@ function love.keypressed(key)
       sfx.open_menu:setVolume(0.75)
     end
   end
+
+  if key == "tab" then
+    if     daytime == 0 then daytime = 1
+    elseif daytime == 1 then daytime = 2
+    elseif daytime == 2 then daytime = 0
+    end
+  end
 end
 
 function startGame()
@@ -162,6 +215,8 @@ function startGame()
 
   -- Physics world
   world = windfield.newWorld(0, 0)
+  world:addCollisionClass('Player')
+  world:addCollisionClass('Enemy', { ignores={'Player'} })
 
   -- Player
   player = Player.load(world, 775, 660, enemies)
@@ -185,5 +240,25 @@ function startGame()
     end
   end
 
+  -- Light sources
+  lights = {}
+  if gameMap.layers["Lights"] then
+    for _, obj in ipairs(gameMap.layers["Lights"].objects) do
+      table.insert(lights, {
+        x = obj.x,
+        y = obj.y + 50,
+        radius = 200
+      })
+    end
+  end
+
   menu.state = 1
+  hud.load(player)
+end
+
+function worldToScreen(cam, x, y)
+  local screenW, screenH = love.graphics.getDimensions()
+  local sx = (x - cam.x) * cam.scale + screenW / 2
+  local sy = (y - cam.y) * cam.scale + screenH / 2
+  return sx, sy
 end
