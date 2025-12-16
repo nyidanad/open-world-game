@@ -10,7 +10,7 @@ return {
   tilewidth = 32,
   tileheight = 32,
   nextlayerid = 26,
-  nextobjectid = 163,
+  nextobjectid = 171,
   properties = {},
   tilesets = {
     {
@@ -4242,6 +4242,22 @@ return {
             ["dir"] = "left",
             ["state"] = 0
           }
+        },
+        {
+          id = 170,
+          name = "Salamandra",
+          type = "salamandra_heavy_2",
+          shape = "point",
+          x = 1247,
+          y = 640,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["dir"] = "left",
+            ["state"] = 1
+          }
         }
       }
     },
@@ -4261,7 +4277,7 @@ return {
       objects = {
         {
           id = 149,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 838,
@@ -4274,7 +4290,7 @@ return {
         },
         {
           id = 150,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 874,
@@ -4287,7 +4303,7 @@ return {
         },
         {
           id = 151,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 678,
@@ -4300,7 +4316,7 @@ return {
         },
         {
           id = 152,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 714,
@@ -4313,7 +4329,7 @@ return {
         },
         {
           id = 153,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 486,
@@ -4326,7 +4342,7 @@ return {
         },
         {
           id = 154,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 522,
@@ -4339,7 +4355,7 @@ return {
         },
         {
           id = 155,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 934,
@@ -4352,7 +4368,7 @@ return {
         },
         {
           id = 156,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 970,
@@ -4365,7 +4381,7 @@ return {
         },
         {
           id = 157,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 1126,
@@ -4378,7 +4394,7 @@ return {
         },
         {
           id = 158,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 1162,
@@ -4391,7 +4407,7 @@ return {
         },
         {
           id = 159,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 614,
@@ -4404,7 +4420,7 @@ return {
         },
         {
           id = 160,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 650,
@@ -4417,7 +4433,7 @@ return {
         },
         {
           id = 161,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 1030,
@@ -4430,11 +4446,102 @@ return {
         },
         {
           id = 162,
-          name = "light_source",
+          name = "lantern",
           type = "",
           shape = "point",
           x = 1066,
           y = 235,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 163,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 632,
+          y = 342,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 164,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 1048,
+          y = 278,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 165,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 504,
+          y = 534,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 166,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 696,
+          y = 630,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 167,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 856,
+          y = 662,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 168,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 952,
+          y = 470,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 169,
+          name = "light_source",
+          type = "",
+          shape = "point",
+          x = 1144,
+          y = 598,
           width = 0,
           height = 0,
           rotation = 0,

@@ -1,4 +1,5 @@
 local enemyTypes = require('src.enemies.enemyTypes')
+local shaders = require('src.utils.shaders')
 
 local enemy = {}
 enemy.__index = enemy
@@ -8,6 +9,7 @@ function enemy.load(world, x, y, type, initState, initDir, player, enemies)
   local data = enemyTypes[type]
   
   -- origin properties
+  self.world = world
   self.spawnX = x
   self.spawnY = y
   self.initState = initState
@@ -35,9 +37,9 @@ function enemy.load(world, x, y, type, initState, initDir, player, enemies)
   self.chasing = false
   self.leashing = false
   self.animTimer = 0
-  self.damagedBool = 1
-  self.damagedFlashTime = 0.05
-  self.damagedTimer = 0
+  self.stunned = false
+  self.stunnedFlashTimer = 0
+  self.stunnedTimer = 0
   self.attackTimer = 0
   self.attackCooldown = 0
   self.onCooldown = false
@@ -49,6 +51,10 @@ function enemy.load(world, x, y, type, initState, initDir, player, enemies)
   self.spellTimer = 0
   self.isSpellcaster = data.isSpellcaster
   self.despawnTimer = 180
+  self.knockbackVX = 0
+  self.knockbackVY = 0
+  self.knockbackForce = 300
+  self.LoS = false
 
   -- 0: idle
   -- 0.1: incombat idle
@@ -72,16 +78,40 @@ function enemy.load(world, x, y, type, initState, initDir, player, enemies)
   -- collider
   self.collider = world:newBSGRectangleCollider(x, y, 16, 10, 3)
   self.collider:setFixedRotation(true)
+  self.collider:setCollisionClass('Enemy')
+
+  self.sfx = {
+    sword_swing = {
+      love.audio.newSource('res/sounds/sfx/sword-swing-1.mp3', 'static'),
+      love.audio.newSource('res/sounds/sfx/sword-swing-2.mp3', 'static'),
+    },
+
+    hit = {
+      love.audio.newSource('res/sounds/sfx/enemy-hit-1.mp3', 'static'),
+      love.audio.newSource('res/sounds/sfx/enemy-hit-2.mp3', 'static'),
+      love.audio.newSource('res/sounds/sfx/enemy-hit-3.mp3', 'static'),
+    },
+
+    dying = {
+      love.audio.newSource('res/sounds/sfx/enemy-dying-1.mp3', 'static'),
+      love.audio.newSource('res/sounds/sfx/enemy-dying-2.mp3', 'static'),
+      love.audio.newSource('res/sounds/sfx/enemy-dying-3.mp3', 'static'),
+    }
+  }
 
   return self
 end
 
 function enemy:update(dt)
+  local list = self.sfx.dying
+  local sfx = list[math.random(#list)]
+
   -- checking if enemy dead
   if self.health <= 0 then
     if self.state ~= 11 then
       self.state = 11
       self.anim = self.animations.death
+      sfx:play()
     end
 
     self.despawnTimer = self.despawnTimer - dt
@@ -99,6 +129,32 @@ function enemy:update(dt)
     end
 
     return  -- stops update here so enemy cannot move while dead
+  end
+
+  -- checking if stunned
+  if self.stunned then
+    self.stunnedTimer = self.stunnedTimer - dt
+    self.stunnedFlashTimer = self.stunnedFlashTimer - dt
+
+    -- knockback damping
+    local damping = 6
+    self.knockbackVX = self.knockbackVX - self.knockbackVX * damping * dt
+    self.knockbackVY = self.knockbackVY - self.knockbackVY * damping * dt
+
+    self.collider:setLinearVelocity(self.knockbackVX, self.knockbackVY)
+
+    self.x = self.collider:getX()
+    self.y = self.collider:getY() - 14
+
+    if self.stunnedTimer <= 0 then
+      self.stunned = false
+      self.knockbackVX = 0
+      self.knockbackVY = 0
+      self.collider:setLinearVelocity(self.knockbackVX, self.knockbackVY)
+    end
+
+    self.anim:update(dt)
+    return
   end
 
   -- idle animations
@@ -176,7 +232,7 @@ function enemy:update(dt)
   end
 
   -- checking cooldown
-  if self.onCooldown then
+  if not self.stunned and self.onCooldown then
     self.attackCooldown = self.attackCooldown - dt
     self.attackTimer = self.attackTimer - dt
     self.anim:update(dt)
@@ -203,8 +259,13 @@ function enemy:update(dt)
 end
 
 function enemy:draw()
+  if self.health > 0 and self.stunned and self.stunnedFlashTimer > 0 then
+    love.graphics.setShader(shaders.whiteout)
+  end
+  
   -- enemy sprite
   self.anim:draw(self.spriteSheet, self.x, self.y, 0, self.scale, self.scale, 64, 64)
+  love.graphics.setShader()
 
   -- HP bar position
   local barWidth = self.initHealth * 8
@@ -225,6 +286,8 @@ end
 -- Handle chasing and leashing logic
 -- Note: also here we handle when to attack
 function enemy:chase()
+  self:checkLoS()
+
   -- distance between agro and player
   local agrX = self.player.x - self.spawnX
   local agrY = self.player.y - self.spawnY
@@ -243,7 +306,7 @@ function enemy:chase()
   local vx, vy = 0, 0
 
   -- checking agro distance
-  if not self.chasing and agroDist <= self.agroRadius then
+  if not self.chasing and agroDist <= self.agroRadius and self.LoS then
     self.chasing = true
     self.state = 3
   end
@@ -261,7 +324,7 @@ function enemy:chase()
   end
 
   -- checking if player in range of attack
-  if dist <= self.attackRange then
+  if dist <= self.attackRange and self.LoS then
     vx, vy = 0, 0
     self.chasing = false
     self.state = 21
@@ -308,6 +371,8 @@ function enemy:chase()
 end
 
 function enemy:attack()
+  local list = self.sfx.sword_swing
+  local sfx = list[math.random(#list)]
   -- mage attacks
   if self.isSpellcaster then
     self.attackType = math.random(1, 3)
@@ -325,8 +390,11 @@ function enemy:attack()
   
   -- fighters attack
   else
-    self.attackCooldown = 2.5
+    self.attackCooldown = 1.5
     self.attackTimer = 0.92
+    sfx:play()
+    
+    if not player.invulnerable then player:hurt(self.damage) end
   end
 
   self.onCooldown = true
@@ -334,11 +402,46 @@ function enemy:attack()
 end
 
 function enemy:hurt(amount)
-  if self.health < amount then
-    self.health = 0
-  else
-    self.health = self.health - amount
+  local list = self.sfx.hit
+  local sfx = list[math.random(#list)]
+
+  self.stunned = true
+  self.stunnedTimer = 0.25        -- stun ideje
+  self.stunnedFlashTimer = 0.1
+
+  -- direction towards the player
+  local dx = self.x - self.player.x
+  local dy = self.y - self.player.y
+  local dist = math.sqrt(dx*dx + dy*dy)
+
+  if dist ~= 0 then
+    dx = dx / dist
+    dy = dy / dist
   end
+
+  -- knockback velocity
+  self.knockbackVX = dx * self.knockbackForce
+  self.knockbackVY = dy * self.knockbackForce
+
+  self.health = math.max(0, self.health - amount)
+  sfx:play()
+end
+
+function enemy:checkLoS()
+  local ex, ey = self.x, self.y
+  local px, py = self.player.x, self.player.y
+  local block = false
+
+  self.world:rayCast(ex, ey, px, py, function(fixture, hx, hy, nx, ny, fraction)
+    local col = fixture:getUserData()
+    if col and col.collision_class == 'Obstacle' then
+      block = true
+      return 0  -- stopping rayCast because we hit an object
+    end
+    return -1 -- ignore everything else
+  end)
+
+  self.LoS = not block
 end
 
 return enemy

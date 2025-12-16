@@ -7,7 +7,7 @@ local types = {
     speed = 60,
     damage = 1,
     scale = 0.65,
-    attackRange = 30,
+    attackRange = 20,
     isSpellcaster = false,
 
     animations = function(grid, anim8)
@@ -42,7 +42,7 @@ local types = {
     speed = 60,
     damage = 1,
     scale = 0.65,
-    attackRange = 30,
+    attackRange = 20,
     isSpellcaster = false,
 
     animations = function(grid, anim8)

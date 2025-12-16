@@ -129,9 +129,23 @@ function love.draw()
       gameMap:drawLayer(gameMap.layers['props-z2-bottom'])
 
       for i, enemy in ipairs(enemies) do
+        -- << attack range indicator >>
+        -- love.graphics.setColor(1, 0, 0, 0.15)
+        -- love.graphics.circle("fill", enemy.x, enemy.y, enemy.attackRange )
+        -- love.graphics.setColor(1, 1, 1, 1)
+        -- << LOS indicator >>
+        if enemy.LoS then
+          love.graphics.setColor(0, 1, 0, 0.4)
+        else
+          love.graphics.setColor(1, 0, 0, 0.4)
+        end
+        love.graphics.line(enemy.x, enemy.y, enemy.player.x, enemy.player.y)
+        love.graphics.setColor(1, 1, 1, 1)
         enemy:draw()
       end
       
+      -- love.graphics.setColor(0, 1, 0, 0.15)
+      -- love.graphics.circle("fill", player.x, player.y, player.attackRange )
       player:draw()
       
       -- top layers
@@ -216,7 +230,8 @@ function startGame()
   -- Physics world
   world = windfield.newWorld(0, 0)
   world:addCollisionClass('Player')
-  world:addCollisionClass('Enemy', { ignores={'Player'} })
+  world:addCollisionClass('Enemy', { ignores={'Player', 'Enemy'} })
+  world:addCollisionClass('Obstacle')
 
   -- Player
   player = Player.load(world, 775, 660, enemies)
@@ -235,6 +250,7 @@ function startGame()
   if gameMap.layers["Colliders"] then
     for i, obj in pairs(gameMap.layers["Colliders"].objects) do
       local collider = world:newRectangleCollider(obj.x, obj.y, obj.width, obj.height)
+      collider:setCollisionClass('Obstacle')
       collider:setType('static')
       table.insert(colliders, collider)
     end
@@ -244,11 +260,9 @@ function startGame()
   lights = {}
   if gameMap.layers["Lights"] then
     for _, obj in ipairs(gameMap.layers["Lights"].objects) do
-      table.insert(lights, {
-        x = obj.x,
-        y = obj.y + 50,
-        radius = 200
-      })
+      if obj.name == "light_source" then
+        table.insert(lights, { x = obj.x, y = obj.y, radius = 200 })
+      end
     end
   end
 

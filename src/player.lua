@@ -11,7 +11,7 @@ function player.load(world, x, y, enemies)
   player.animSpeed = 0.14
   player.walking = false
   player.animTimer = 0
-  player.health = 4
+  player.health = 6
   player.damage = 1
   player.damagedTimer = 0
   player.damageDelayTimer = 0
@@ -72,6 +72,7 @@ function player.load(world, x, y, enemies)
   -- collider
   player.collider = world:newBSGRectangleCollider(x, y, 16, 10, 3)
   player.collider:setFixedRotation(true)
+  player.collider:setCollisionClass('Player')
 
   player.sfx = {
     sword_swing_1 = love.audio.newSource('res/sounds/sfx/sword-swing-1.mp3', 'static'),
@@ -173,10 +174,6 @@ function player.update(dt, mapWidth, mapHeight)
   -- TEMPORARY KEYBINDINGS
   if love.keyboard.isDown('9') then
     player.health = 0
-  end
-
-  if love.keyboard.isDown('8') then
-    player:hurt(0.00001)
   end
 
   -- movement animation updates
@@ -322,7 +319,7 @@ end
 
 function player:hurt(amount)
   player.invulnerable = true
-  player.invulnerableTimer = 4
+  player.invulnerableTimer = 3
   player.damagedTimer = 0.1
   player.health = player.health - amount
 end

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="left-down" width="124" height="68" tilewidth="32" tileheight="32" infinite="0" nextlayerid="26" nextobjectid="163">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="left-down" width="124" height="68" tilewidth="32" tileheight="32" infinite="0" nextlayerid="26" nextobjectid="171">
  <editorsettings>
   <export target="village.lua" format="lua"/>
  </editorsettings>
@@ -1788,48 +1788,76 @@
    </properties>
    <point/>
   </object>
+  <object id="170" name="Salamandra" type="salamandra_heavy_2" x="1247" y="640">
+   <properties>
+    <property name="dir" value="left"/>
+    <property name="state" type="int" value="1"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="25" name="Lights">
-  <object id="149" name="light_source" x="838" y="619">
+  <object id="149" name="lantern" x="838" y="619">
    <point/>
   </object>
-  <object id="150" name="light_source" x="874" y="619">
+  <object id="150" name="lantern" x="874" y="619">
    <point/>
   </object>
-  <object id="151" name="light_source" x="678" y="587">
+  <object id="151" name="lantern" x="678" y="587">
    <point/>
   </object>
-  <object id="152" name="light_source" x="714" y="587">
+  <object id="152" name="lantern" x="714" y="587">
    <point/>
   </object>
-  <object id="153" name="light_source" x="486" y="491">
+  <object id="153" name="lantern" x="486" y="491">
    <point/>
   </object>
-  <object id="154" name="light_source" x="522" y="491">
+  <object id="154" name="lantern" x="522" y="491">
    <point/>
   </object>
-  <object id="155" name="light_source" x="934" y="427">
+  <object id="155" name="lantern" x="934" y="427">
    <point/>
   </object>
-  <object id="156" name="light_source" x="970" y="427">
+  <object id="156" name="lantern" x="970" y="427">
    <point/>
   </object>
-  <object id="157" name="light_source" x="1126" y="555">
+  <object id="157" name="lantern" x="1126" y="555">
    <point/>
   </object>
-  <object id="158" name="light_source" x="1162" y="555">
+  <object id="158" name="lantern" x="1162" y="555">
    <point/>
   </object>
-  <object id="159" name="light_source" x="614" y="299">
+  <object id="159" name="lantern" x="614" y="299">
    <point/>
   </object>
-  <object id="160" name="light_source" x="650" y="299">
+  <object id="160" name="lantern" x="650" y="299">
    <point/>
   </object>
-  <object id="161" name="light_source" x="1030" y="235">
+  <object id="161" name="lantern" x="1030" y="235">
    <point/>
   </object>
-  <object id="162" name="light_source" x="1066" y="235">
+  <object id="162" name="lantern" x="1066" y="235">
+   <point/>
+  </object>
+  <object id="163" name="light_source" x="632" y="342">
+   <point/>
+  </object>
+  <object id="164" name="light_source" x="1048" y="278">
+   <point/>
+  </object>
+  <object id="165" name="light_source" x="504" y="534">
+   <point/>
+  </object>
+  <object id="166" name="light_source" x="696" y="630">
+   <point/>
+  </object>
+  <object id="167" name="light_source" x="856" y="662">
+   <point/>
+  </object>
+  <object id="168" name="light_source" x="952" y="470">
+   <point/>
+  </object>
+  <object id="169" name="light_source" x="1144" y="598">
    <point/>
   </object>
  </objectgroup>
